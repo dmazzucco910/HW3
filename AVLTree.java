@@ -362,7 +362,75 @@ class LUC_AVLTree {
          * do many of the same things as this method.
          */
 
+        //first check if node passed is null
+        if (node == null) {
+            return null; //return null if not existing
+        }
+        //check if node is in left or right
+        if (value < node.value) { //check if node is in left child
+            node.leftChild = deleteElement(value, node.leftChild); //recursively call method for left child
+        } else if (value > node.value) { //check if node is in right child
+            node.rightChild = deleteElement(value, node.rightChild); //recursively call method for right child
+        } else {//node is found
+
+            if (node.leftChild == null || node.rightChild == null) {//node with only one child or no child
+                Node tem; //create temporaty node
+                if (node.leftChild != null) {//chcek if left child is null
+                    tem = node.leftChild; //if it's not make tem the left child
+                } else {
+                    tem = node.rightChild;//do the opposite for right child
+                }
+
+                //node with no child
+                if (tem == null) {
+                    tem = node;
+                    node = null;//make node null/delete
+                } else { //node with one child
+                    node = tem; //move subtree up by making the child the current node  (tem has been set to which side the child is on)
+                }
+
+            } else {//node with 2 children
+
+                Node temp = minValueNode(node.rightChild); //Find in order succesor node
+                node.value = temp.value; //make current node value the in order succesor node value
+                node.rightChild = deleteElement(temp.value, node.rightChild); //delete in order successor
+            }
+        }
+
+        //if tree cannot be traversed further return node
+        if (node == null) {
+            return node;
+        }
+
+        node.height = getMaxHeight(getHeight(node.leftChild), getHeight(node.rightChild)) + 1; //recalculate node height by finding heigher of 2 branches and adding 1
+
+        int bf = getBalanceFactor(node); //recalculate node bf
+
+
+        //4 cases where node needs to be rebalanced
+
+        if (bf > 1 && getBalanceFactor(node.leftChild) >= 0) {//left heavy twice meaning node bf > 1 and bf of left child > 0
+            return LLRotation(node);
+        }
+
+
+        if (bf > 1 && getBalanceFactor(node.leftChild) < 0) {//other option for left heavy
+            return LRRotation(node);
+        }
+
+        // Right Right Case
+        if (bf < -1 && getBalanceFactor(node.rightChild) <= 0) {//right heavy twice meaning node bf < -1 and bf of left child < 0
+            return RRRotation(node);
+        }
+
+        // Right Left Case
+        if (bf < -1 && getBalanceFactor(node.rightChild) > 0) {//other option for right heavy
+            return RLRotation(node);
+        }
+
         return node;
+
+
     }
 
 
